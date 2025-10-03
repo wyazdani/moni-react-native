@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import { Dimensions, Image, View } from "react-native";
 import Animated, {
@@ -7,10 +8,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function index() {
+export default function Splash() {
   const translateX1 = useSharedValue(0);
   const translateX2 = useSharedValue(0);
   const translateX3 = useSharedValue(0);
+  const router = useRouter();
   const { width, height } = Dimensions.get("screen");
 
   React.useEffect(() => {
@@ -30,6 +32,11 @@ export default function index() {
         duration: 1000,
       });
     }, 1000);
+
+    // navigate
+    setTimeout(() => {
+      router.replace("/auth");
+    }, 1600);
   }, []);
 
   const style1 = useAnimatedStyle(() => ({
@@ -45,7 +52,7 @@ export default function index() {
   }));
 
   return (
-    <SafeAreaView className="flex-1 justify-center items-center">
+    <SafeAreaView className="flex-1 justify-center items-center bg-white">
       <Image
         source={require("@/assets/images/logo.png")}
         className="w-52 h-40"
