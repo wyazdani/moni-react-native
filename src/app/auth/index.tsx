@@ -1,5 +1,6 @@
 import CustomButton from "@/components/custom-button";
 import CustomInput from "@/components/custom-input";
+import SocialLoginBtns from "@/components/social-login-btns";
 import { EMAIL_REGEX } from "@/constants/regex";
 import AppLayout from "@/layouts/app-layout";
 import { useRouter } from "expo-router";
@@ -89,6 +90,7 @@ const Login = () => {
         </Text>
       </TouchableOpacity>
       <CustomButton title="Login" className="mt-10" />
+      <SocialLoginBtns />
     </AppLayout>
   );
 };
