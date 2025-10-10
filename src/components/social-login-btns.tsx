@@ -12,14 +12,14 @@ const SocialLoginBtns = () => {
         <View className="flex-1 h-px bg-border" />
       </View>
       <View className="gap-5 flex-row justify-center items-center">
-        <TouchableOpacity className="w-14 aspect-square bg-[rgba(122,122,122,0.15)] p-3 rounded-2xl">
+        <TouchableOpacity className="w-12 aspect-square bg-[rgba(122,122,122,0.15)] p-3 rounded-2xl">
           <Image
             source={require("../assets/icons/google.png")}
             resizeMode="contain"
             className="h-full w-full"
           />
         </TouchableOpacity>
-        <TouchableOpacity className="w-14 aspect-square bg-[rgba(122,122,122,0.15)] p-3 rounded-2xl">
+        <TouchableOpacity className="w-12 aspect-square bg-[rgba(122,122,122,0.15)] p-3 rounded-2xl">
           <Image
             source={require("../assets/icons/facebook.png")}
             resizeMode="contain"

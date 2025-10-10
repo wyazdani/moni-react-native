@@ -1,0 +1,10 @@
+ios/
+
+info.plist/
+<key>NSAllowsArbitraryLoads</key>
+      <!-- temp true for developement otherwise false -->
+      <true/>   
+
+android/
+
+local.properties

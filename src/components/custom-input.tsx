@@ -1,12 +1,20 @@
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { COLORS } from "@/constants/styles";
+import Feather from "@expo/vector-icons/Feather";
 import React, {
-    FC,
-    ForwardedRef,
-    useImperativeHandle,
-    useRef,
-    useState,
+  FC,
+  ForwardedRef,
+  useImperativeHandle,
+  useRef,
+  useState,
 } from "react";
-import { Pressable, Text, TextInput, TextInputProps, View } from "react-native";
+import {
+  Platform,
+  Pressable,
+  Text,
+  TextInput,
+  TextInputProps,
+  View,
+} from "react-native";
 
 interface Props extends TextInputProps {
   ref?: ForwardedRef<TextInput>;
@@ -33,18 +41,22 @@ const CustomInput: FC<Props> = ({
   useImperativeHandle(ref, () => inputRef.current as TextInput);
 
   return (
-    <View className={`mb-5 ${className || ""}`}>
+    <View className={`${className || "mt-4"}`}>
       <Pressable
-        className={`flex-row justify-between items-center border border-border rounded-2xl p-4 ${
+        className={`justify-center border border-border rounded-2xl p-4 ${
           error && "border-error"
         }`}
         onPress={onPress || (() => inputRef.current?.focus())}
       >
         <TextInput
           ref={inputRef}
-          className="p-0 m-0 flex-1 text-lg leading-5 font-inter-regular"
-          style={{ textAlignVertical: "center" }}
-          placeholderTextColor={"rgba(122, 122, 122, 1)"}
+          className={`p-0 m-0 ${
+            password && "mr-8"
+          } text-base text-black font-inter-regular ${Platform.select({
+            android: "leading-7",
+            ios: "leading-[0]",
+          })}`}
+          placeholderTextColor={COLORS.gray}
           selectionColor={"rgba(155, 0, 255, 0.3)"}
           secureTextEntry={secure}
           editable={editable}
@@ -52,20 +64,20 @@ const CustomInput: FC<Props> = ({
           {...props}
         />
         {password && (
-          <MaterialIcons
-            name={secure ? "visibility-off" : "visibility"}
-            color={"rgba(122, 122, 122, 1)"}
+          <Feather
+            name={secure ? "eye-off" : "eye"}
+            color={COLORS.gray}
             onPress={() => setSecure((prev) => !prev)}
             size={20}
-            className="ml-4"
+            className="absolute right-4"
           />
         )}
       </Pressable>
-      {error ? (
+      {error && (
         <Text className="mx-4 mt-1 font-inter-italic color-error text-sm">
           {error}
         </Text>
-      ) : null}
+      )}
     </View>
   );
 };

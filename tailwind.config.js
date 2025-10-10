@@ -1,17 +1,12 @@
+import { COLORS } from './src/constants/styles';
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
-      colors: {
-        primary: "rgba(155, 0, 255, 1)",
-        white: "rgb(250,250,250)",
-        black: "rgba(47, 47, 47, 1)",
-        gray: "rgba(122, 122, 122, 1)",
-        border: "rgba(122, 122, 122, 0.15)",
-        error: "rgba(234, 67, 53, 1)",
-      },
+      colors: COLORS,
     },
     fontFamily: {
       "inter-regular": "InterRegular",
@@ -20,6 +15,18 @@ module.exports = {
       "poppins-medium": "PoppinsMedium",
       "poppins-semibold": "PoppinsSemiBold",
     },
+    screens: {
+      sm: "360px", // Small devices
+      md: "430px", // Medium devices
+      lg: "600px", // Large phones / small tablets
+      xl: "768px", // Tablets
+    },
+    fontSize:{
+      // fontSize with corresponding line-height for consistent text rhythm
+      "sm":["0.81rem", { lineHeight: "1.2rem" }],
+      "base":["1rem", { lineHeight: "1.5rem" }],
+      "lg":["1.75rem", { lineHeight: "2.25rem" }]
+    }
   },
   plugins: [],
 };

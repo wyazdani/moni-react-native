@@ -1,12 +1,14 @@
+import { login } from "@/api/auth";
 import CustomButton from "@/components/custom-button";
 import CustomInput from "@/components/custom-input";
 import SocialLoginBtns from "@/components/social-login-btns";
 import { EMAIL_REGEX } from "@/constants/regex";
 import AppLayout from "@/layouts/app-layout";
-import { useRouter } from "expo-router";
+import { router } from "expo-router";
 import { useFormik } from "formik";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Text, TextInput, TouchableOpacity } from "react-native";
+import Toast from "react-native-simple-toast";
 import * as Yup from "yup";
 
 type InputRefs = {
@@ -14,14 +16,26 @@ type InputRefs = {
   password: TextInput | null;
 };
 
+type Values = {
+  email: string;
+  password: string;
+};
+
 const Login = () => {
-  const router = useRouter();
+  const [loader, setLoader] = useState(false);
   const inputRefs = useRef<InputRefs>({
     email: null,
     password: null,
   });
-  const handleLogin = async () => {
-    // router.navigate("/(protectedScreens)/(tabs)");
+
+  const handleLogin = async (values?: Values) => {
+    setLoader(true);
+    const res = await login(values);
+    if (res?.status == 200) {
+      Toast.show("User logged in successfuly", Toast.SHORT);
+      router.replace("/(protected-routes)/tabs");
+    }
+    setLoader(false);
   };
 
   let ValidationSchema = Yup.object().shape({
@@ -29,27 +43,19 @@ const Login = () => {
       .test("email", "Enter Valid Email", (val) => EMAIL_REGEX.test(val || ""))
       .required("Email Required"),
     password: Yup.string()
-      .min(8, "Passsword must be atleast 8 characters")
+      .min(8, "Password must be atleast 8 characters")
       .required("Password Required"),
   });
 
-  const {
-    handleChange,
-    handleBlur,
-    handleSubmit,
-    values,
-    errors,
-    touched,
-    setFieldValue,
-  } = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
-    validationSchema: ValidationSchema,
-    // validateOnChange:false,
-    onSubmit: handleLogin,
-  });
+  const { handleChange, handleBlur, handleSubmit, values, errors, touched } =
+    useFormik<Values>({
+      initialValues: {
+        email: "",
+        password: "",
+      },
+      validationSchema: ValidationSchema,
+      onSubmit: handleLogin,
+    });
 
   return (
     <AppLayout
@@ -60,10 +66,11 @@ const Login = () => {
     >
       <CustomInput
         ref={(el) => (inputRefs.current["email"] = el)}
-        className="mt-16"
+        className="mt-12"
         placeholder={"Email"}
         value={values.email}
         onChangeText={handleChange("email")}
+        keyboardType={"email-address"}
         onBlur={handleBlur("email")}
         error={touched.email && errors.email}
         autoCapitalize="none"
@@ -72,7 +79,6 @@ const Login = () => {
         submitBehavior={"submit"}
       />
       <CustomInput
-        className="mb-2"
         ref={(el) => (inputRefs.current["password"] = el)}
         placeholder={"Password"}
         password
@@ -84,12 +90,21 @@ const Login = () => {
         onSubmitEditing={() => handleSubmit()}
         returnKeyType={"done"}
       />
-      <TouchableOpacity className="self-end" hitSlop={5} onPress={() => {}}>
-        <Text className="text-primary text-base font-inter-medium">
+      <TouchableOpacity
+        className="self-end mt-1"
+        hitSlop={5}
+        onPress={() => router.push("/auth/forgot-password")}
+      >
+        <Text className="text-primary text-sm font-inter-medium">
           Forgot Password?
         </Text>
       </TouchableOpacity>
-      <CustomButton title="Login" className="mt-10" />
+      <CustomButton
+        title="Login"
+        className="mt-10"
+        loader={loader}
+        onPress={handleSubmit}
+      />
       <SocialLoginBtns />
     </AppLayout>
   );

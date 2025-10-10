@@ -6,4 +6,4 @@ const {
   
 const config = getDefaultConfig(__dirname)
  
-module.exports = withNativeWind(config, { input: './src/styles/global.css' })
+module.exports = withNativeWind(config, { input: './src/styles/global.scss',inlineRem: 16, })

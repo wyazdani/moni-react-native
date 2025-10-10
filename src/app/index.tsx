@@ -2,9 +2,10 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { Dimensions, Image, View } from "react-native";
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
+  withTiming
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -17,25 +18,30 @@ export default function Splash() {
 
   React.useEffect(() => {
     // Third dot
-    translateX3.value = withTiming(Math.max(width, height), { duration: 1000 });
+    translateX3.value = withTiming(Math.max(width, height)/1.6, {
+      duration: 2500,
+      easing: Easing.out(Easing.exp),
+    });
 
     // Second dot (delayed)
     setTimeout(() => {
-      translateX2.value = withTiming(Math.max(width, height), {
-        duration: 1000,
+      translateX2.value = withTiming(Math.max(width, height)/1.6, {
+        duration: 2500,
+        easing: Easing.out(Easing.exp),
       });
     }, 500);
 
     // Third dot (delayed more)
     setTimeout(() => {
-      translateX1.value = withTiming(Math.max(width, height), {
-        duration: 1000,
+      translateX1.value = withTiming(Math.max(width, height)/1.6, {
+        duration: 2500,
+        easing: Easing.out(Easing.exp),
       });
     }, 1000);
 
     // navigate
     setTimeout(() => {
-      router.replace("/auth");
+      router.replace("/tabs");
     }, 1600);
   }, []);
 
