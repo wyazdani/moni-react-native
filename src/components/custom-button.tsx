@@ -2,7 +2,12 @@ import { COLORS } from "@/constants/styles";
 import { LinearGradient } from "expo-linear-gradient";
 import { cssInterop } from "nativewind";
 import React, { FC } from "react";
-import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
+import {
+  ActivityIndicator,
+  ColorValue,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 
 const CustomizedLinearGradient = cssInterop(LinearGradient, {
   className: "style",
@@ -13,9 +18,16 @@ interface Props {
   onPress?: () => void;
   className?: string;
   loader?: boolean;
+  linearGradientColors?: [ColorValue, ColorValue, ...ColorValue[]];
 }
 
-const CustomButton: FC<Props> = ({ title, onPress, className, loader }) => {
+const CustomButton: FC<Props> = ({
+  title,
+  onPress,
+  className,
+  loader,
+  linearGradientColors,
+}) => {
   return (
     <TouchableOpacity
       activeOpacity={0.8}
@@ -23,7 +35,7 @@ const CustomButton: FC<Props> = ({ title, onPress, className, loader }) => {
       onPress={onPress}
     >
       <CustomizedLinearGradient
-        colors={[COLORS.secondary, COLORS.primary]}
+        colors={linearGradientColors || [COLORS.secondary, COLORS.primary]}
         className={
           "h-12 rounded-2xl justify-center items-center overflow-hidden"
         }

@@ -1,12 +1,13 @@
 import { COLORS } from "@/constants/styles";
 import { LinearGradient } from "expo-linear-gradient";
-import { Tabs } from "expo-router";
+import { router, Tabs } from "expo-router";
 import React from "react";
 import { Image, StyleSheet, TouchableOpacity } from "react-native";
 
 export default function TabLayout() {
   return (
     <Tabs
+      backBehavior={"history"}
       screenOptions={{
         tabBarActiveTintColor: COLORS.primary,
         tabBarInactiveTintColor: COLORS.gray,
@@ -15,6 +16,10 @@ export default function TabLayout() {
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
           backgroundColor: "white",
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
         },
       }}
     >
@@ -36,9 +41,15 @@ export default function TabLayout() {
         name="chat"
         options={{
           title: "Chat",
+          tabBarStyle: { display: "none" },
           tabBarButton: (props) => (
             // @ts-ignore
-            <TouchableOpacity {...props} activeOpacity={0.8} style={styles.chatIconContainer}>
+            <TouchableOpacity
+              // {...props}
+              activeOpacity={0.8}
+              style={styles.chatIconContainer}
+              onPress={() => router.push('/initial-chat')}
+            >
               <LinearGradient
                 colors={["rgba(0, 255, 255, 0.3)", "rgba(155, 0, 255, 0.3)"]}
                 start={{ x: 0, y: 0 }}
@@ -66,6 +77,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Profile",
+          tabBarStyle: { display: "none" },
           tabBarIcon: ({ focused }) => (
             <Image
               source={require("../../../assets/icons/profile.png")}
@@ -90,7 +102,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "center",
     position: "absolute",
-    top: -30,
+    bottom: 0,
   },
   chatIconContainerInner1: {
     width: 70,

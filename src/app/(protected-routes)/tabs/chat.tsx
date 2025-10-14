@@ -1,20 +1,45 @@
-import { StyleSheet, View } from 'react-native';
+import AppLayout from "@/layouts/app-layout";
+import React, { useCallback, useEffect, useState } from "react";
+import { GiftedChat } from "react-native-gifted-chat";
 
-export default function TabTwoScreen() {
+const Chat = () => {
+  const [messages, setMessages] = useState<any>([]);
+
+  useEffect(() => {
+    setMessages([
+      {
+        _id: 1,
+        text: "Hello",
+        user: {
+          _id: 2,
+        },
+      },
+      {
+        _id: 2,
+        text: "Hello developer",
+        user: {
+          _id: 1,
+        },
+      },
+    ]);
+  }, []);
+
+  const onSend = useCallback((messages: any = []) => {
+    setMessages((previousMessages: any) =>
+      GiftedChat.append(previousMessages, messages)
+    );
+  }, []);
   return (
-    <View></View>
+    <AppLayout from="chat" showFooter={false} scrollEnabled={false}>
+      <GiftedChat
+        messages={messages}
+        onSend={(messages) => onSend(messages)}
+        user={{
+          _id: 1,
+        }}
+      />
+    </AppLayout>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
+export default Chat;

@@ -3,6 +3,7 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import { MenuProvider } from 'react-native-popup-menu';
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -10,6 +11,7 @@ export default function RootLayout() {
   useFonts({
     InterRegular: require("@/assets/fonts/Inter-Regular.ttf"),
     InterMedium: require("@/assets/fonts/Inter-Medium.ttf"),
+    InterSemiBold: require("@/assets/fonts/Inter-SemiBold.ttf"),
     InterItalic: require("@/assets/fonts/Inter-Italic.ttf"),
     PoppinsMedium: require("@/assets/fonts/Poppins-Medium.ttf"),
     PoppinsSemiBold: require("@/assets/fonts/Poppins-SemiBold.ttf"),
@@ -18,8 +20,10 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <KeyboardProvider>
+      <MenuProvider>
         <Stack screenOptions={{ headerShown: false }} />
-        <StatusBar style="auto" />
+        <StatusBar style="dark" />
+        </MenuProvider>
       </KeyboardProvider>
     </SafeAreaProvider>
   );
