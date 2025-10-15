@@ -48,7 +48,7 @@ export default function TabLayout() {
               // {...props}
               activeOpacity={0.8}
               style={styles.chatIconContainer}
-              onPress={() => router.push('/initial-chat')}
+              onPress={() => router.push('/tabs/chat')}
             >
               <LinearGradient
                 colors={["rgba(0, 255, 255, 0.3)", "rgba(155, 0, 255, 0.3)"]}

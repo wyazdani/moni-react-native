@@ -1,10 +1,15 @@
 import { COLORS } from "@/constants/styles";
+import { From } from "@/layouts/app-layout";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
-import React from "react";
-import { Platform, TouchableOpacity } from "react-native";
+import React, { FC } from "react";
+import { Keyboard, Platform, TouchableOpacity } from "react-native";
 
-const BackButton = ({}) => {
+interface Props {
+  from?: From;
+}
+
+const BackButton: FC<Props> = ({ from }) => {
   const router = useRouter();
 
   return (
@@ -13,7 +18,14 @@ const BackButton = ({}) => {
         android: "shadow-lg shadow-gray",
         ios: "shadow",
       })} justify-center items-center`}
-      onPress={() => router.canGoBack() && router.back()}
+      onPress={() => {
+        if (from == "chat") {
+          Keyboard.isVisible() && Keyboard.dismiss();
+          setTimeout(() => {
+            router.canGoBack() && router.back();
+          }, 300);
+        } else router.canGoBack() && router.back();
+      }}
       activeOpacity={0.8}
     >
       <MaterialIcons name="chevron-left" size={25} color={COLORS.black} />

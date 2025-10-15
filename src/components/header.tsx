@@ -25,7 +25,7 @@ const Header: FC<Props> = ({ title, from }) => {
         paddingRight: Math.max(left, right) || 20,
       }}
     >
-      {from != "login" && <BackButton />}
+      {from != "login" && <BackButton from={from} />}
       {title && (
         <Text className="text-black text-base font-poppins-semibold ml-4">
           {title}
