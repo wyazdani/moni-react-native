@@ -1,9 +1,12 @@
 import CustomButton from "@/components/custom-button";
 import { COLORS } from "@/constants/styles";
 import AppLayout from "@/layouts/app-layout";
+import { removeUserData } from "@/redux/slices/authSlice";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 import React, { FC, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
+import { useDispatch } from "react-redux";
 import ToggleSwitch from "toggle-switch-react-native";
 
 interface SettingItemProps {
@@ -67,11 +70,22 @@ const SettingItem: FC<SettingItemProps> = ({
 };
 
 const Settings = () => {
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   const handleLogout = () => {
-    // Handle logout logic here
-    console.log("Logout pressed");
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [
+          {
+            name: "auth",
+          },
+        ],
+      })
+    );
+    dispatch(removeUserData());
   };
 
   return (

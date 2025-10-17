@@ -4,11 +4,13 @@ import CustomInput from "@/components/custom-input";
 import SocialLoginBtns from "@/components/social-login-btns";
 import { EMAIL_REGEX } from "@/constants/regex";
 import AppLayout from "@/layouts/app-layout";
+import { saveUser } from "@/redux/slices/authSlice";
 import { router } from "expo-router";
 import { useFormik } from "formik";
 import React, { useRef, useState } from "react";
 import { Text, TextInput, TouchableOpacity } from "react-native";
 import Toast from "react-native-simple-toast";
+import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 
 type InputRefs = {
@@ -22,6 +24,7 @@ type Values = {
 };
 
 const Login = () => {
+  const dispatch = useDispatch()
   const [loader, setLoader] = useState(false);
   const inputRefs = useRef<InputRefs>({
     email: null,
@@ -33,7 +36,8 @@ const Login = () => {
     const res = await login(values);
     if (res?.status == 200) {
       Toast.show("User logged in successfuly", Toast.SHORT);
-      router.replace("/(protected-routes)/tabs");
+      dispatch(saveUser(res.data))
+      router.replace("/tabs");
     }
     setLoader(false);
   };

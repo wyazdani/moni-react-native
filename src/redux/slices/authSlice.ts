@@ -1,6 +1,5 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { deleteAccountApi } from "../../api/auth";
 
 export interface AuthState {
   user: any;
@@ -18,6 +17,8 @@ interface DeleteUserAction {
 export const deleteUser = createAsyncThunk(
   "auth/deleteUser",
   async (action: DeleteUserAction) => {
+    // dynamic import to avoid circular dependency at module init
+    const { deleteAccountApi } = await import("../../api/auth");
     const res = await deleteAccountApi();
     if (res?.status == 200) {
       action.onSuccess();
@@ -51,7 +52,6 @@ export const authSlice = createSlice({
   },
 });
 
-// Action creators are generated for each case reducer function
 export const { saveUser, removeUserData } = authSlice.actions;
 
 export default authSlice.reducer;
