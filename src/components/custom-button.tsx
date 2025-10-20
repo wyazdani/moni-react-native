@@ -17,6 +17,7 @@ interface Props {
   title: string;
   onPress?: () => void;
   className?: string;
+  textClassName?: string;
   loader?: boolean;
   linearGradientColors?: [ColorValue, ColorValue, ...ColorValue[]];
 }
@@ -25,6 +26,7 @@ const CustomButton: FC<Props> = ({
   title,
   onPress,
   className,
+  textClassName,
   loader,
   linearGradientColors,
 }) => {
@@ -45,7 +47,9 @@ const CustomButton: FC<Props> = ({
         {loader ? (
           <ActivityIndicator color={"white"} size={"small"} />
         ) : (
-          <Text className="text-[white] text-base font-inter-medium">
+          <Text
+            className={`text-[white] text-base font-inter-medium ${textClassName}`}
+          >
             {title}
           </Text>
         )}

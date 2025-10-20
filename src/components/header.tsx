@@ -16,7 +16,7 @@ const Header: FC<Props> = ({ title, from }) => {
   return (
     <BlurView
       intensity={Platform.select({ android: 100, ios: 50 })}
-      className={`w-full absolute z-10 flex-row items-center bg-white px-5 pb-2 ${
+      className={`w-full absolute flex-row items-center bg-white px-5 pb-2 ${
         from == "chat" ? "justify-between" : "justify-start"
       }`}
       style={{

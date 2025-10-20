@@ -14,7 +14,7 @@ const BackButton: FC<Props> = ({ from }) => {
 
   return (
     <TouchableOpacity
-      className={`w-9 aspect-square rounded-full bg-white ${Platform.select({
+      className={`w-9 aspect-square rounded-full z-10 bg-white ${Platform.select({
         android: "shadow-lg shadow-gray",
         ios: "shadow",
       })} justify-center items-center`}

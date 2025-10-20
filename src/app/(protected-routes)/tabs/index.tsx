@@ -1,11 +1,13 @@
+import EntryBottomSheet from "@/bottom-sheets/entry-bottom-sheet";
 import { COLORS } from "@/constants/styles";
 import { formatAmount } from "@/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import BottomSheet from "@gorhom/bottom-sheet";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useIsFocused } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { FC, useLayoutEffect, useState } from "react";
+import { FC, useLayoutEffect, useRef, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -125,7 +127,7 @@ const SpendingCard = () => {
       <View className="flex-row items-end">
         <Text className="font-inter-regular text-sm text-gray">Left of</Text>
         <RenderAmount
-          amount={6408}
+          amount={10000}
           color={COLORS.gray}
           className="ml-1"
           textClassName="font-inter-regular text-sm mb-0"
@@ -154,11 +156,15 @@ const SpendingCard = () => {
 interface SmallCardProps {
   title: string;
   amount: number;
+  onPress: () => void;
 }
 
-const SmallCard: FC<SmallCardProps> = ({ title, amount }) => {
+const SmallCard: FC<SmallCardProps> = ({ title, amount, onPress }) => {
   return (
-    <View className="bg-white rounded-2xl p-4 shadow-lg flex-1">
+    <Pressable
+      className="bg-white rounded-2xl p-4 shadow-lg flex-1"
+      onPress={onPress}
+    >
       {/* Amount */}
       <RenderAmount amount={amount} />
 
@@ -172,7 +178,7 @@ const SmallCard: FC<SmallCardProps> = ({ title, amount }) => {
           className="w-4 h-4"
         />
       </View>
-    </View>
+    </Pressable>
   );
 };
 
@@ -264,6 +270,10 @@ const InsightCard = () => {
 
 export default function HomeScreen() {
   const [bounces, setBounces] = useState(false);
+  const incomeBottomSheetRef = useRef<BottomSheet>(null);
+  const expenseBottomSheetRef = useRef<BottomSheet>(null);
+  const [income, setIncome] = useState(7500);
+  const [expense, setExpense] = useState(9800);
   const { top, left, right } = useSafeAreaInsets();
   const bottomTabBarHeight = useBottomTabBarHeight();
   const isFocused = useIsFocused();
@@ -274,42 +284,62 @@ export default function HomeScreen() {
   }, [isFocused]);
 
   return (
-    <LinearGradient
-      colors={[COLORS.secondary, COLORS.primary]}
-      start={{ x: 0, y: 1 }}
-      end={{ x: 0, y: 0 }}
-      className="flex-1 "
-    >
-      {/* background Image */}
-      <Image
-        source={require("../../../assets/images/bg-home.png")}
-        className="w-full h-full"
-        style={StyleSheet.absoluteFill}
-      />
-      <ScrollView
-        contentContainerClassName="grow"
-        contentContainerStyle={{
-          paddingTop: top,
-          paddingLeft: Math.max(right, left) || 20,
-          paddingRight: Math.max(right, left) || 20,
-          paddingBottom: bottomTabBarHeight + 60,
-        }}
-        showsVerticalScrollIndicator={false}
-        bounces={bounces}
-        onContentSizeChange={(_, contentHeight) => {
-          // Enable bounce only when content exceeds screen height
-          const windowHeight = Dimensions.get("window").height;
-          setBounces(contentHeight > windowHeight);
-        }}
+      <LinearGradient
+        colors={[COLORS.secondary, COLORS.primary]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        className="flex-1 "
       >
-        <HomeHeader />
-        <SpendingCard />
-        <View className="flex-row gap-5 mt-5">
-          <SmallCard title="Income" amount={7500.0} />
-          <SmallCard title="Expense" amount={9800.0} />
-        </View>
-        <InsightCard />
-      </ScrollView>
-    </LinearGradient>
+        {/* background Image */}
+        <Image
+          source={require("../../../assets/images/bg-home.png")}
+          className="w-full h-full"
+          style={StyleSheet.absoluteFill}
+        />
+        <ScrollView
+          contentContainerClassName="grow"
+          contentContainerStyle={{
+            paddingTop: top,
+            paddingLeft: Math.max(right, left) || 20,
+            paddingRight: Math.max(right, left) || 20,
+            paddingBottom: bottomTabBarHeight + 60,
+          }}
+          showsVerticalScrollIndicator={false}
+          bounces={bounces}
+          onContentSizeChange={(_, contentHeight) => {
+            // Enable bounce only when content exceeds screen height
+            const windowHeight = Dimensions.get("window").height;
+            setBounces(contentHeight > windowHeight);
+          }}
+        >
+          <HomeHeader />
+          <SpendingCard />
+          <View className="flex-row gap-5 mt-5">
+            <SmallCard
+              title="Income"
+              amount={income}
+              onPress={() => incomeBottomSheetRef.current?.expand()}
+            />
+            <SmallCard
+              title="Expense"
+              amount={expense}
+              onPress={() => expenseBottomSheetRef.current?.expand()}
+            />
+          </View>
+          <InsightCard />
+        </ScrollView>
+        <EntryBottomSheet
+          ref={incomeBottomSheetRef}
+          title="Income"
+          isBottomTabScreen={true}
+          onSubmit={(value: number) => setIncome(value)}
+        />
+        <EntryBottomSheet
+          ref={expenseBottomSheetRef}
+          title="Expense"
+          isBottomTabScreen={true}
+          onSubmit={(value: number) => setExpense(value)}
+        />
+      </LinearGradient>
   );
 }

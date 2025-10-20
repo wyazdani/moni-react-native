@@ -3,6 +3,7 @@ import "@/styles/global.scss";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { MenuProvider } from "react-native-popup-menu";
 import "react-native-reanimated";
@@ -26,7 +27,9 @@ export default function RootLayout() {
         <SafeAreaProvider>
           <KeyboardProvider>
             <MenuProvider>
-              <Stack screenOptions={{ headerShown: false }} />
+              <GestureHandlerRootView className={"flex-1"}>
+                <Stack screenOptions={{ headerShown: false }} />
+              </GestureHandlerRootView>
               <StatusBar style="dark" />
             </MenuProvider>
           </KeyboardProvider>

@@ -140,7 +140,6 @@ const Signup = () => {
         onChangeText={handleChange("first_name")}
         onBlur={handleBlur("first_name")}
         error={touched.first_name && errors.first_name}
-        autoCapitalize="none"
         onSubmitEditing={() => inputRefs.current["last_name"]?.focus()}
         returnKeyType={"next"}
         submitBehavior={"submit"}
@@ -152,7 +151,6 @@ const Signup = () => {
         onChangeText={handleChange("last_name")}
         onBlur={handleBlur("last_name")}
         error={touched.last_name && errors.last_name}
-        autoCapitalize="none"
         onSubmitEditing={() => inputRefs.current["email"]?.focus()}
         returnKeyType={"next"}
         submitBehavior={"submit"}
@@ -165,6 +163,7 @@ const Signup = () => {
         onBlur={handleBlur("email")}
         error={touched.email && errors.email}
         autoCapitalize="none"
+        keyboardType="email-address"
         onSubmitEditing={() => inputRefs.current["state"]?.focus()}
         returnKeyType={"next"}
         submitBehavior={"submit"}
