@@ -35,6 +35,7 @@ const CustomButton: FC<Props> = ({
       activeOpacity={0.8}
       className={className}
       onPress={onPress}
+      disabled={loader}
     >
       <CustomizedLinearGradient
         colors={linearGradientColors || [COLORS.secondary, COLORS.primary]}

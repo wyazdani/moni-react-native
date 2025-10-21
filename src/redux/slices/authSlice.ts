@@ -18,7 +18,7 @@ export const deleteUser = createAsyncThunk(
   "auth/deleteUser",
   async (action: DeleteUserAction) => {
     // dynamic import to avoid circular dependency at module init
-    const { deleteAccountApi } = await import("../../api/auth");
+    const { deleteAccountApi } = await import("../../api/users");
     const res = await deleteAccountApi();
     if (res?.status == 200) {
       action.onSuccess();
@@ -34,6 +34,9 @@ export const authSlice = createSlice({
   reducers: {
     saveUser: (_, action: PayloadAction<any>) => ({
       user: action.payload,
+    }),
+    updateUser: (state, action: PayloadAction<any>) => ({
+      user: { ...state.user, ...action.payload },
     }),
     removeUserData: () => ({
       user: null,
@@ -52,6 +55,6 @@ export const authSlice = createSlice({
   },
 });
 
-export const { saveUser, removeUserData } = authSlice.actions;
+export const { saveUser, updateUser, removeUserData } = authSlice.actions;
 
 export default authSlice.reducer;

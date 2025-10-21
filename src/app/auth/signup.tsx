@@ -3,6 +3,7 @@ import CustomButton from "@/components/custom-button";
 import CustomDropdown from "@/components/custom-dropdown";
 import CustomInput from "@/components/custom-input";
 import SocialLoginBtns from "@/components/social-login-btns";
+import { COUNTRIES, WHERE_DID_HEAR_LIST } from "@/constants";
 import { EMAIL_REGEX } from "@/constants/regex";
 import AppLayout from "@/layouts/app-layout";
 import { useRouter } from "expo-router";
@@ -11,48 +12,6 @@ import React, { useRef, useState } from "react";
 import { TextInput } from "react-native";
 import Toast from "react-native-simple-toast";
 import * as Yup from "yup";
-
-const COUNTRIES = [
-  {
-    name: "Pakistan",
-    code: "pk",
-  },
-  {
-    name: "India",
-    code: "in",
-  },
-  {
-    name: "America",
-    code: "us",
-  },
-  {
-    name: "United Kingdom",
-    code: "uk",
-  },
-  {
-    name: "Ireland",
-    code: "ir",
-  },
-  {
-    name: "United Arab Emirates",
-    code: "uae",
-  },
-];
-
-const WHERE_DID_HEAR_LIST = [
-  {
-    name: "Google",
-  },
-  {
-    name: "Facebook",
-  },
-  {
-    name: "Instagram",
-  },
-  {
-    name: "Other",
-  },
-];
 
 type InputRefs = {
   first_name: TextInput | null;

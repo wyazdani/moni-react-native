@@ -1,5 +1,6 @@
 import EntryBottomSheet from "@/bottom-sheets/entry-bottom-sheet";
 import { COLORS } from "@/constants/styles";
+import { useAppSelector } from "@/redux/store";
 import { formatAmount } from "@/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import BottomSheet from "@gorhom/bottom-sheet";
@@ -73,6 +74,7 @@ const RenderAmount: FC<RenderAmountProps> = ({
 };
 
 const HomeHeader = () => {
+  const { user } = useAppSelector((state) => state.auth);
   return (
     <View className="flex-row justify-between items-center mt-4">
       <Pressable
@@ -80,7 +82,7 @@ const HomeHeader = () => {
         onPress={() => router.push("/settings")}
       >
         <Image
-          source={require("../../../assets/images/temp/profile.png")}
+          source={require("../../../assets/images/dummy-profile.jpg")}
           className="w-12 h-12 rounded-full border-2 border-white"
         />
         <View className="flex-1 mx-2">
@@ -94,7 +96,7 @@ const HomeHeader = () => {
             className="font-poppins-semibold text-base text-[white]"
             numberOfLines={2}
           >
-            John Doe
+            {`${user.first_name} ${user.last_name}`.trim()}
           </Text>
         </View>
       </Pressable>
@@ -284,62 +286,62 @@ export default function HomeScreen() {
   }, [isFocused]);
 
   return (
-      <LinearGradient
-        colors={[COLORS.secondary, COLORS.primary]}
-        start={{ x: 0, y: 1 }}
-        end={{ x: 0, y: 0 }}
-        className="flex-1 "
+    <LinearGradient
+      colors={[COLORS.secondary, COLORS.primary]}
+      start={{ x: 0, y: 1 }}
+      end={{ x: 0, y: 0 }}
+      className="flex-1 "
+    >
+      {/* background Image */}
+      <Image
+        source={require("../../../assets/images/bg-home.png")}
+        className="w-full h-full"
+        style={StyleSheet.absoluteFill}
+      />
+      <ScrollView
+        contentContainerClassName="grow"
+        contentContainerStyle={{
+          paddingTop: top,
+          paddingLeft: Math.max(right, left) || 20,
+          paddingRight: Math.max(right, left) || 20,
+          paddingBottom: bottomTabBarHeight + 60,
+        }}
+        showsVerticalScrollIndicator={false}
+        bounces={bounces}
+        onContentSizeChange={(_, contentHeight) => {
+          // Enable bounce only when content exceeds screen height
+          const windowHeight = Dimensions.get("window").height;
+          setBounces(contentHeight > windowHeight);
+        }}
       >
-        {/* background Image */}
-        <Image
-          source={require("../../../assets/images/bg-home.png")}
-          className="w-full h-full"
-          style={StyleSheet.absoluteFill}
-        />
-        <ScrollView
-          contentContainerClassName="grow"
-          contentContainerStyle={{
-            paddingTop: top,
-            paddingLeft: Math.max(right, left) || 20,
-            paddingRight: Math.max(right, left) || 20,
-            paddingBottom: bottomTabBarHeight + 60,
-          }}
-          showsVerticalScrollIndicator={false}
-          bounces={bounces}
-          onContentSizeChange={(_, contentHeight) => {
-            // Enable bounce only when content exceeds screen height
-            const windowHeight = Dimensions.get("window").height;
-            setBounces(contentHeight > windowHeight);
-          }}
-        >
-          <HomeHeader />
-          <SpendingCard />
-          <View className="flex-row gap-5 mt-5">
-            <SmallCard
-              title="Income"
-              amount={income}
-              onPress={() => incomeBottomSheetRef.current?.expand()}
-            />
-            <SmallCard
-              title="Expense"
-              amount={expense}
-              onPress={() => expenseBottomSheetRef.current?.expand()}
-            />
-          </View>
-          <InsightCard />
-        </ScrollView>
-        <EntryBottomSheet
-          ref={incomeBottomSheetRef}
-          title="Income"
-          isBottomTabScreen={true}
-          onSubmit={(value: number) => setIncome(value)}
-        />
-        <EntryBottomSheet
-          ref={expenseBottomSheetRef}
-          title="Expense"
-          isBottomTabScreen={true}
-          onSubmit={(value: number) => setExpense(value)}
-        />
-      </LinearGradient>
+        <HomeHeader />
+        <SpendingCard />
+        <View className="flex-row gap-5 mt-5">
+          <SmallCard
+            title="Income"
+            amount={income}
+            onPress={() => incomeBottomSheetRef.current?.expand()}
+          />
+          <SmallCard
+            title="Expense"
+            amount={expense}
+            onPress={() => expenseBottomSheetRef.current?.expand()}
+          />
+        </View>
+        <InsightCard />
+      </ScrollView>
+      <EntryBottomSheet
+        ref={incomeBottomSheetRef}
+        title="Income"
+        isBottomTabScreen={true}
+        onSubmit={(value: number) => setIncome(value)}
+      />
+      <EntryBottomSheet
+        ref={expenseBottomSheetRef}
+        title="Expense"
+        isBottomTabScreen={true}
+        onSubmit={(value: number) => setExpense(value)}
+      />
+    </LinearGradient>
   );
 }

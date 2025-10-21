@@ -18,10 +18,9 @@ const resendOTP = async (data: any) =>
 const createPassword = async (data: any) =>
   await apiRequest("POST", "auth/create-password", data, true, true);
 
-const deleteAccountApi = async () => await apiRequest('DELETE', 'delete-account')
-
 export {
-  createPassword, deleteAccountApi, forgotPassword,
+  createPassword,
+  forgotPassword,
   login,
   register,
   resendOTP,

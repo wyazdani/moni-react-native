@@ -1,5 +1,6 @@
 import { BASE_URL } from "@/constants";
 import axios from "axios";
+import { router } from "expo-router";
 import Toast from "react-native-simple-toast";
 import { removeUserData } from "../redux/slices/authSlice";
 import { store } from "../redux/store";
@@ -18,14 +19,7 @@ const errorHandler = (
       Toast.SHORT
     );
   if (!disableRedirection && error?.response?.status == 401) {
-    // navigationRef.dispatch(CommonActions.reset({
-    //     index: 0,
-    //     routes: [
-    //         {
-    //             name: 'RegisterOption',
-    //         }
-    //     ],
-    // }))
+    router.dismissTo('/auth');
     store.dispatch(removeUserData());
   }
 };
