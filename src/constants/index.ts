@@ -1,5 +1,5 @@
-export const BASE_URL = 'http://200.10.12.43:1000/'
-// export const BASE_URL = "https://api.moniloop.com/";
+// export const BASE_URL = 'http://200.10.13.169:1000/'
+export const BASE_URL = "https://api.moniloop.com/";
 
 export const COUNTRIES = [
   {

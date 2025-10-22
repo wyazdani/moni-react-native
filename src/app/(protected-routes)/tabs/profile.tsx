@@ -46,7 +46,11 @@ export default function Profile() {
           {/* Profile Picture */}
           <View className="bg-primary rounded-full border-4 border-[white]">
             <Image
-              source={require("@/assets/images/dummy-profile.jpg")}
+              source={
+                user.profile_image
+                  ? { uri: user.profile_image }
+                  : require("@/assets/images/dummy-profile.jpg")
+              }
               className="w-24 h-24 rounded-full"
             />
           </View>

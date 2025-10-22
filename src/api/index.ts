@@ -12,6 +12,7 @@ const errorHandler = (
   showErrors: boolean,
   disableRedirection?: boolean
 ) => {
+  console.log("error: ", error);
   console.log("error: ", JSON.stringify(error?.response, null, 2));
   if (error?.name != "CanceledError" && showErrors)
     Toast.show(

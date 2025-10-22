@@ -82,7 +82,11 @@ const HomeHeader = () => {
         onPress={() => router.push("/settings")}
       >
         <Image
-          source={require("../../../assets/images/dummy-profile.jpg")}
+          source={
+            user.profile_image
+              ? { uri: user.profile_image }
+              : require("@/assets/images/dummy-profile.jpg")
+          }
           className="w-12 h-12 rounded-full border-2 border-white"
         />
         <View className="flex-1 mx-2">
