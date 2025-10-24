@@ -65,6 +65,11 @@ const EditProfile = () => {
     state: Yup.string().required("State Required"),
   });
 
+  const pickEntites = (user: Values) => {
+    const { first_name, last_name, country, state } = user;
+    return { first_name, last_name, country, state };
+  };
+
   const {
     handleChange,
     handleBlur,
@@ -76,7 +81,7 @@ const EditProfile = () => {
     setFieldTouched,
     validateField,
   } = useFormik<Values>({
-    initialValues: { ...INITIAL_VALUES, ...user },
+    initialValues: { ...INITIAL_VALUES, ...pickEntites(user) },
     validationSchema: ValidationSchema,
     onSubmit: () => {
       Keyboard.dismiss();
@@ -90,9 +95,13 @@ const EditProfile = () => {
     Object.keys(values).forEach((key) => {
       formData.append(key, values[key as keyof Values]);
     });
-    if (selectedImage) formData.append("image", selectedImage as any);
+    if (selectedImage)
+      formData.append("image", {
+        uri: selectedImage.uri,
+        name: selectedImage.fileName || "photo.jpg",
+        type: selectedImage.mimeType || "image/jpeg",
+      } as any);
     const res = await updateUserApi(formData);
-    console.log("Update Profile Response:", res?.data);
     if (res?.status == 200) {
       dispatch(updateUser(res.data));
       Toast.show("Information updated successfully", Toast.SHORT);

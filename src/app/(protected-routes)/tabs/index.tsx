@@ -75,6 +75,7 @@ const RenderAmount: FC<RenderAmountProps> = ({
 
 const HomeHeader = () => {
   const { user } = useAppSelector((state) => state.auth);
+  console.log("user home header: ", user);
   return (
     <View className="flex-row justify-between items-center mt-4">
       <Pressable
