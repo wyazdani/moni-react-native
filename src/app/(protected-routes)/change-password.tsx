@@ -1,11 +1,14 @@
+import { changePasswordApi } from "@/api/users";
 import ConfirmationBottomSheet from "@/bottom-sheets/confirmation-bottom-sheet";
 import CustomButton from "@/components/custom-button";
 import CustomInput from "@/components/custom-input";
 import AppLayout from "@/layouts/app-layout";
 import BottomSheet from "@gorhom/bottom-sheet";
+import { router } from "expo-router";
 import { useFormik } from "formik";
 import React, { useRef, useState } from "react";
 import { Keyboard, TextInput } from "react-native";
+import Toast from "react-native-simple-toast";
 import * as Yup from "yup";
 
 type InputRefs = {
@@ -28,12 +31,12 @@ const ChangePassword = () => {
     new_password: null,
     confirm_password: null,
   });
-  
+
   let ValidationSchema = Yup.object().shape({
     old_password: Yup.string()
       .min(8, "Password must be atleast 8 characters")
       .required("Old Password Required"),
-      new_password: Yup.string()
+    new_password: Yup.string()
       .min(8, "Password must be atleast 8 characters")
       .required("New Password Required"),
     confirm_password: Yup.string()
@@ -51,18 +54,19 @@ const ChangePassword = () => {
       validationSchema: ValidationSchema,
       onSubmit: () => {
         Keyboard.dismiss();
-        confirmationBottomSheetRef.current?.expand()
+        confirmationBottomSheetRef.current?.expand();
       },
     });
 
-const handleChangePassword = async () => {
-    // setLoader(true);
-    // const res = await createPassword({ email, password: values.new_password });
-    // if (res?.status == 200) {
-    //   Toast.show("Password created successfully", Toast.SHORT);
-    //   router.replace("/auth");
-    // }
-    // setLoader(false);
+  const handleChangePassword = async () => {
+    setLoader(true);
+    const { old_password, new_password } = values;
+    const res = await changePasswordApi({ old_password, new_password });
+    if (res?.status == 200) {
+      Toast.show("Password changed successfully", Toast.SHORT);
+      router.back();
+    }
+    setLoader(false);
   };
 
   return (
