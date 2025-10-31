@@ -1,6 +1,9 @@
+import { updateUserApi } from "@/api/users";
 import EntryBottomSheet from "@/bottom-sheets/entry-bottom-sheet";
+import AppLoader from "@/components/app-loader";
 import { COLORS } from "@/constants/styles";
-import { useAppSelector } from "@/redux/store";
+import { updateUser } from "@/redux/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { formatAmount } from "@/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import BottomSheet from "@gorhom/bottom-sheet";
@@ -28,6 +31,7 @@ import {
   MenuTrigger,
 } from "react-native-popup-menu";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Toast from "react-native-simple-toast";
 
 interface RenderAmountProps {
   amount: number;
@@ -44,7 +48,7 @@ const RenderAmount: FC<RenderAmountProps> = ({
   textClassName,
   amountClassName,
 }) => {
-  const [bd, ad] = formatAmount(amount).split(".");
+  const [bd, ad] = formatAmount(Number(amount || 0)).split(".");
   const commonClassName = "font-poppins-medium text-base mb-1";
 
   return (
@@ -75,7 +79,7 @@ const RenderAmount: FC<RenderAmountProps> = ({
 
 const HomeHeader = () => {
   const { user } = useAppSelector((state) => state.auth);
-  console.log("user home header: ", user);
+
   return (
     <View className="flex-row justify-between items-center mt-4">
       <Pressable
@@ -117,6 +121,19 @@ const HomeHeader = () => {
 };
 
 const SpendingCard = () => {
+  // Get current date
+  const date = new Date();
+  const firstDay = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  const month = firstDay.toLocaleString("default", { month: "long" });
+
+  // Format dates
+  const monthRange = `${month} ${firstDay.getDate()} - ${month} ${lastDay.getDate()}`;
+
   return (
     <View className="bg-white rounded-2xl p-4 mt-6 shadow-lg">
       {/* Header */}
@@ -124,7 +141,7 @@ const SpendingCard = () => {
 
       {/* Date Range */}
       <Text className="font-inter-regular text-sm text-gray mt-1">
-        August 1 - August 30
+        {monthRange}
       </Text>
 
       {/* Amount */}
@@ -148,13 +165,15 @@ const SpendingCard = () => {
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           className="h-full rounded-full"
-          style={{ width: "64%" }}
+          style={{
+            width: `${(firstDay.getDate() / lastDay.getDate()) * 100}%`,
+          }}
         />
       </View>
 
       {/* Days Left */}
       <Text className="font-inter-regular text-sm text-gray text-center mt-3">
-        10 days left
+        {lastDay.getDate() - firstDay.getDate()} days left
       </Text>
     </View>
   );
@@ -276,11 +295,12 @@ const InsightCard = () => {
 };
 
 export default function HomeScreen() {
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
   const [bounces, setBounces] = useState(false);
   const incomeBottomSheetRef = useRef<BottomSheet>(null);
   const expenseBottomSheetRef = useRef<BottomSheet>(null);
-  const [income, setIncome] = useState(7500);
-  const [expense, setExpense] = useState(9800);
+  const [loader, setLoader] = useState(false);
   const { top, left, right } = useSafeAreaInsets();
   const bottomTabBarHeight = useBottomTabBarHeight();
   const isFocused = useIsFocused();
@@ -290,63 +310,80 @@ export default function HomeScreen() {
     else StatusBar.setBarStyle("dark-content");
   }, [isFocused]);
 
+  const handleUpdateAmount = async (key: string, value: string) => {
+    setLoader(true);
+    const formData = new FormData();
+    formData.append(key, value);
+    const res = await updateUserApi(formData);
+    if (res?.status == 200) {
+      Toast.show("Successfully updated", Toast.SHORT);
+      dispatch(updateUser(res.data));
+    }
+    setLoader(false);
+  };
+
   return (
-    <LinearGradient
-      colors={[COLORS.secondary, COLORS.primary]}
-      start={{ x: 0, y: 1 }}
-      end={{ x: 0, y: 0 }}
-      className="flex-1 "
-    >
-      {/* background Image */}
-      <Image
-        source={require("../../../assets/images/bg-home.png")}
-        className="w-full h-full"
-        style={StyleSheet.absoluteFill}
-      />
-      <ScrollView
-        contentContainerClassName="grow"
-        contentContainerStyle={{
-          paddingTop: top,
-          paddingLeft: Math.max(right, left) || 20,
-          paddingRight: Math.max(right, left) || 20,
-          paddingBottom: bottomTabBarHeight + 60,
-        }}
-        showsVerticalScrollIndicator={false}
-        bounces={bounces}
-        onContentSizeChange={(_, contentHeight) => {
-          // Enable bounce only when content exceeds screen height
-          const windowHeight = Dimensions.get("window").height;
-          setBounces(contentHeight > windowHeight);
-        }}
+    user && (
+      <LinearGradient
+        colors={[COLORS.secondary, COLORS.primary]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        className="flex-1 "
       >
-        <HomeHeader />
-        <SpendingCard />
-        <View className="flex-row gap-5 mt-5">
-          <SmallCard
-            title="Income"
-            amount={income}
-            onPress={() => incomeBottomSheetRef.current?.expand()}
-          />
-          <SmallCard
-            title="Expense"
-            amount={expense}
-            onPress={() => expenseBottomSheetRef.current?.expand()}
-          />
-        </View>
-        <InsightCard />
-      </ScrollView>
-      <EntryBottomSheet
-        ref={incomeBottomSheetRef}
-        title="Income"
-        isBottomTabScreen={true}
-        onSubmit={(value: number) => setIncome(value)}
-      />
-      <EntryBottomSheet
-        ref={expenseBottomSheetRef}
-        title="Expense"
-        isBottomTabScreen={true}
-        onSubmit={(value: number) => setExpense(value)}
-      />
-    </LinearGradient>
+        {/* background Image */}
+        <Image
+          source={require("../../../assets/images/bg-home.png")}
+          className="w-full h-full"
+          style={StyleSheet.absoluteFill}
+        />
+        <ScrollView
+          contentContainerClassName="grow"
+          contentContainerStyle={{
+            paddingTop: top,
+            paddingLeft: Math.max(right, left) || 20,
+            paddingRight: Math.max(right, left) || 20,
+            paddingBottom: bottomTabBarHeight + 60,
+          }}
+          showsVerticalScrollIndicator={false}
+          bounces={bounces}
+          onContentSizeChange={(_, contentHeight) => {
+            // Enable bounce only when content exceeds screen height
+            const windowHeight = Dimensions.get("window").height;
+            setBounces(contentHeight > windowHeight);
+          }}
+        >
+          <HomeHeader />
+          <SpendingCard />
+          <View className="flex-row gap-5 mt-5">
+            <SmallCard
+              title="Income"
+              amount={user.income}
+              onPress={() => incomeBottomSheetRef.current?.expand()}
+            />
+            <SmallCard
+              title="Expense"
+              amount={user.expense}
+              onPress={() => expenseBottomSheetRef.current?.expand()}
+            />
+          </View>
+          <InsightCard />
+        </ScrollView>
+        <EntryBottomSheet
+          ref={incomeBottomSheetRef}
+          title="Income"
+          isBottomTabScreen={true}
+          amount={user.income}
+          onSubmit={(value: string) => handleUpdateAmount("income", value)}
+        />
+        <EntryBottomSheet
+          ref={expenseBottomSheetRef}
+          title="Expense"
+          isBottomTabScreen={true}
+          amount={user.expense}
+          onSubmit={(value: string) => handleUpdateAmount("expense", value)}
+        />
+        <AppLoader visible={loader} />
+      </LinearGradient>
+    )
   );
 }

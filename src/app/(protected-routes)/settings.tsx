@@ -1,7 +1,9 @@
+import { updateUserApi } from "@/api/users";
 import CustomButton from "@/components/custom-button";
 import { COLORS } from "@/constants/styles";
 import AppLayout from "@/layouts/app-layout";
-import { removeUserData } from "@/redux/slices/authSlice";
+import { removeUserData, updateUser } from "@/redux/slices/authSlice";
+import { useAppSelector } from "@/redux/store";
 import { CommonActions, useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 import React, { FC, useState } from "react";
@@ -71,8 +73,11 @@ const SettingItem: FC<SettingItemProps> = ({
 
 const Settings = () => {
   const dispatch = useDispatch();
+  const { user } = useAppSelector((state) => state.auth);
   const navigation = useNavigation();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    !!user?.notification_enabled
+  );
 
   const handleLogout = () => {
     navigation.dispatch(
@@ -86,6 +91,16 @@ const Settings = () => {
       })
     );
     dispatch(removeUserData());
+  };
+  const handleNotifcationToggle = async () => {
+    setNotificationsEnabled(!notificationsEnabled);
+    const formData = new FormData();
+    formData.append("notification_enabled", notificationsEnabled ? "" : "true");
+    const res = await updateUserApi(formData);
+    if (res?.status == 200) {
+      dispatch(updateUser(res.data));
+      setNotificationsEnabled(res.data.notification_enabled);
+    }
   };
 
   return (
@@ -114,7 +129,7 @@ const Settings = () => {
           title="Notifications"
           type="toggle"
           toggleValue={notificationsEnabled}
-          onToggleChange={setNotificationsEnabled}
+          onToggleChange={handleNotifcationToggle}
         />
       </View>
 

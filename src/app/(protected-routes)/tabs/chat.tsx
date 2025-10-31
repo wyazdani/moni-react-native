@@ -1,8 +1,12 @@
+import AppLoader from "@/components/app-loader";
 import Message from "@/components/message";
 import SuggestionMessage from "@/components/suggestion-message";
+import { BASE_URL } from "@/constants";
 import { COLORS } from "@/constants/styles";
 import { usePaddingBottomForKeyboard } from "@/hooks/usePaddingBottomForKeyboard";
 import AppLayout from "@/layouts/app-layout";
+import { useAppSelector } from "@/redux/store";
+import { useIsFocused } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -11,10 +15,12 @@ import {
   Platform,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { GiftedChat, IMessage, MessageProps } from "react-native-gifted-chat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Toast from "react-native-simple-toast";
+import { io, Socket } from "socket.io-client";
 
 const SUGGESSTION_MESSAGES = [
   "How much did I spend on food last week?",
@@ -24,96 +30,92 @@ const SUGGESSTION_MESSAGES = [
 ];
 
 const Chat = () => {
+  const { user } = useAppSelector((state) => state.auth);
+  const [socket, setSocket] = useState<Socket>();
   const [text, setText] = useState<string>("");
-  const [messages, setMessages] = useState<any>([]);
-  const {top} = useSafeAreaInsets();
+  const [messages, setMessages] = useState<any[]>([]);
+  const [isPending, setIsPending] = useState<boolean>(false);
+  const { top } = useSafeAreaInsets();
   const paddingBottom = usePaddingBottomForKeyboard(8);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    setMessages([
-      {
-        _id: 9,
-        text: "Interactive Brokers — strong in many countries; good tools, lots of products, usually low fees.",
-        user: {
-          _id: 0,
-        },
+    if (!user || !isFocused) return;
+    const socket = io(BASE_URL, {
+      extraHeaders: {
+        authorization: `Bearer ${user.token}`,
       },
-      {
-        _id: 8,
-        text: "Which is the best broker?",
-        user: {
-          _id: 1,
-        },
-      },
-      {
-        _id: 7,
-        text: "Interactive Brokers — strong in many countries; good tools, lots of products, usually low fees.",
-        user: {
-          _id: 0,
-        },
-      },
-      {
-        _id: 6,
-        text: "Which is the best broker?",
-        user: {
-          _id: 1,
-        },
-      },
-      {
-        _id: 5,
-        text: "Interactive Brokers — strong in many countries; good tools, lots of products, usually low fees.",
-        user: {
-          _id: 0,
-        },
-      },
-      {
-        _id: 4,
-        text: "Which is the best broker?",
-        user: {
-          _id: 1,
-        },
-      },
-      {
-        _id: 3,
-        text: "Transfer of Billing (telecom/IT services) when ownership or responsibility for billing is moved from one account holder to another.",
-        user: {
-          _id: 0,
-        },
-      },
-      {
-        _id: 2,
-        text: " What is TOB?",
-        user: {
-          _id: 1,
-        },
-      },
-      {
-        _id: 1,
-        text: "How can I help you?",
-        user: {
-          _id: 0,
-        },
-      },
-    ]);
-  }, []);
+    });
+    setSocket(socket);
+
+    let responseMessage = "";
+    socket.on("receive-message", (message: any) => {
+      responseMessage += message;
+      setMessages((prev: any[]) => {
+        // If first message is loader, update it immutably
+        if (prev[0]?.loader) {
+          const updated = {
+            ...prev[0],
+            text: responseMessage,
+          };
+
+          return [updated, ...prev.slice(1)];
+        }
+        return prev;
+      });
+      console.log("Received message:", responseMessage);
+    });
+    socket.on("message-response-completed", () => {
+      setIsPending(false);
+    });
+    socket.on("error", (error: any) => {
+      console.log("Socket error:", error);
+      setIsPending(false);
+      Toast.show(error, Toast.SHORT);
+    });
+
+    return () => {
+      socket?.disconnect();
+      setMessages((prev: any[]) => {
+        const { loader, text } = prev[0] || {};
+        if (loader && !text) {
+          return [...prev.slice(1)];
+        }
+        return prev;
+      });
+      setIsPending(false);
+    };
+  }, [user, isFocused]);
 
   const renderMessage = useCallback(
     (message: MessageProps<IMessage>) => <Message message={message} />,
     []
   );
 
-  const onSend = useCallback((txt?:string) => {
-    txt = text.trim() || txt?.trim();
+  const onSend = (txt?: string) => {
+    txt = txt?.trim() || text.trim();
     if (!txt) return;
+    setIsPending(true);
+    
     const newMessage = {
       _id: Date.now(),
       text: txt,
       createdAt: new Date(),
-      user: { _id: 1 },
+      user: { _id: user._id },
     };
-    setMessages((prev: any) => GiftedChat.append(prev, [newMessage]));
+    const tempMessage = {
+      _id: Date.now() + "loader",
+      text: "",
+      loader: true,
+      createdAt: new Date(),
+      user: { _id: "assistant" },
+    };
+    setMessages((prev: any) =>
+      GiftedChat.append(prev, [tempMessage, newMessage])
+    );
     setText("");
-  }, [text]);
+    socket?.emit("send-message", txt);
+  };
 
   const renderInputToolbar = useCallback(() => {
     return (
@@ -137,7 +139,11 @@ const Chat = () => {
             onSubmitEditing={() => onSend()}
           />
         </View>
-        <TouchableOpacity disabled={!text} activeOpacity={0.6} onPress={() => onSend()}>
+        <TouchableOpacity
+          disabled={!text || isPending}
+          activeOpacity={0.6}
+          onPress={() => onSend()}
+        >
           <LinearGradient
             colors={[COLORS.secondary, COLORS.primary]}
             start={{ x: 0, y: 0 }}
@@ -153,35 +159,45 @@ const Chat = () => {
         </TouchableOpacity>
       </View>
     );
-  }, [text, paddingBottom]);
+  }, [text, isPending, paddingBottom, onSend]);
 
   const renderFooter = useCallback(() => {
     const onPress = (text: string) => onSend(text);
     return (
-      <View className="gap-4 mb-2 mt-20">
-        {SUGGESSTION_MESSAGES.map((message, index) => (
-          <SuggestionMessage key={index} text={message} onPress={onPress} />
-        ))}
-      </View>
+      messages.length <= 0 && (
+        <View className="gap-4 mb-2 mt-20">
+          {SUGGESSTION_MESSAGES.map((message, index) => (
+            <SuggestionMessage
+              key={index}
+              text={message}
+              onPress={onPress}
+              disabled={isPending}
+            />
+          ))}
+        </View>
+      )
     );
-  }, []);
+  }, [onSend, isPending, messages]);
 
   return (
-    <AppLayout from="chat" showFooter={false} scrollEnabled={false}>
-      <GiftedChat
-        messages={messages}
-        user={{
-          _id: 1,
-        }}
-        renderMessage={renderMessage}
-        renderInputToolbar={renderInputToolbar}
-        renderFooter={renderFooter}
-        renderDay={() => <View/>}
-        keyboardShouldPersistTaps="handled"
-        messagesContainerStyle={{ marginTop: top+45 }}
-        handleOnScroll={() => Keyboard.dismiss()}
-      />
-    </AppLayout>
+    user && (
+      <AppLayout from="chat" showFooter={false} scrollEnabled={false}>
+        <GiftedChat
+          messages={messages}
+          user={{
+            _id: user._id,
+          }}
+          renderMessage={renderMessage}
+          renderInputToolbar={renderInputToolbar}
+          renderFooter={renderFooter}
+          renderDay={() => <View />}
+          keyboardShouldPersistTaps="handled"
+          messagesContainerStyle={{ marginTop: top + 45 }}
+          handleOnScroll={() => Keyboard.dismiss()}
+        />
+        <AppLoader visible={isFocused && !socket} />
+      </AppLayout>
+    )
   );
 };
 

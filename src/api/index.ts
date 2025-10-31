@@ -12,15 +12,17 @@ const errorHandler = (
   showErrors: boolean,
   disableRedirection?: boolean
 ) => {
-  console.log("error: ", error);
+  // console.log("error: ", error);
   console.log("error response: ", JSON.stringify(error?.response, null, 2));
   if (error?.name != "CanceledError" && showErrors)
     Toast.show(
-      error?.response?.data?.message || "Something Went Wrong!",
+      typeof error?.response?.data?.message == "object"
+        ? error?.response?.data?.message[0]
+        : error?.response?.data?.message || "Something Went Wrong!",
       Toast.SHORT
     );
   if (!disableRedirection && error?.response?.status == 401) {
-    router.dismissTo('/auth');
+    router.dismissTo("/auth");
     store.dispatch(removeUserData());
   }
 };

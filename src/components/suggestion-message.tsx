@@ -6,14 +6,16 @@ import { Text, TouchableOpacity, View } from "react-native";
 interface Props {
   text: string;
   onPress: (text: string) => void;
+  disabled?: boolean;
 }
 
-const SuggestionMessage: FC<Props> = ({ text, onPress }) => {
+const SuggestionMessage: FC<Props> = ({ text, onPress, disabled }) => {
   return (
     <TouchableOpacity
       className="max-w-[90%] rounded-full self-end mx-5"
       onPress={() => onPress(text)}
       activeOpacity={0.8}
+      disabled={disabled}
     >
       <LinearGradient
         colors={[COLORS.secondary, COLORS.primary]}

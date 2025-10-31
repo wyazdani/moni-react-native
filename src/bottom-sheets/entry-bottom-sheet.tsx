@@ -7,27 +7,65 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import React, { FC, RefObject, useCallback, useState } from "react";
+import { useFormik } from "formik";
+import React, { FC, RefObject, useCallback } from "react";
 import { Keyboard, Text, TouchableOpacity, View } from "react-native";
 import { useKeyboardState } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Yup from "yup";
 
 interface Props {
   ref: RefObject<BottomSheet | null>;
   title: string;
   isBottomTabScreen?: boolean;
-  onSubmit: (value: number) => void;
+  amount?: number;
+  onSubmit: (value: string) => void;
 }
+
+type Values = {
+  amount: string;
+};
 
 const EntryBottomSheet: FC<Props> = ({
   ref,
   title,
   isBottomTabScreen,
+  amount,
   onSubmit,
 }) => {
-  const [value, setValue] = useState<string>("");
   const keyboardState = useKeyboardState();
   const { bottom } = useSafeAreaInsets();
+
+  const handleClose = () => {
+    Keyboard.isVisible() && Keyboard.dismiss();
+    ref?.current?.close();
+  };
+
+  const handleConfirm = (values: Values) => {
+    onSubmit(values.amount);
+    handleClose();
+  };
+
+  let ValidationSchema = Yup.object().shape({
+    amount: Yup.number().required("Amount Required"),
+  });
+
+  const {
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    values,
+    errors,
+    touched,
+    resetForm,
+  } = useFormik<Values>({
+    initialValues: {
+      amount: amount?.toString() || "",
+    },
+    validationSchema: ValidationSchema,
+    onSubmit: handleConfirm,
+    enableReinitialize: true,
+  });
 
   const renderBackdrop = useCallback(
     (props: any) => (
@@ -41,26 +79,17 @@ const EntryBottomSheet: FC<Props> = ({
     []
   );
 
-  const handleClose = () => {
-    Keyboard.isVisible() && Keyboard.dismiss();
-    ref?.current?.close();
-  };
-
-  const handleSubmit = () => {
-    const numericValue = parseFloat(value);
-    if (!isNaN(numericValue)) {
-      onSubmit(numericValue);
-      setValue("");
-      handleClose();
-    }
-  };
-
   return (
     <BottomSheet
       ref={ref}
       index={-1}
       snapPoints={[1]}
       backdropComponent={renderBackdrop}
+      onChange={(index) => {
+        if (index === -1) {
+          resetForm();
+        }
+      }}
     >
       <BottomSheetView className="flex-1 px-5">
         <View className="flex-row justify-between items-center mt-5">
@@ -73,11 +102,13 @@ const EntryBottomSheet: FC<Props> = ({
           </TouchableOpacity>
         </View>
         <CustomInput
-          value={value}
-          onChangeText={setValue}
+          value={values.amount}
+          onChangeText={handleChange("amount")}
+          onBlur={handleBlur("amount")}
           className="mt-7"
           placeholder="Enter Amount"
           keyboardType="numeric"
+          error={touched.amount && errors.amount}
         />
         <View
           className="flex-row gap-5 mt-5"
