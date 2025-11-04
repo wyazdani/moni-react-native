@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://200.10.13.233:1000/'
+export const BASE_URL = 'http://200.10.13.126:1000/'
 // export const BASE_URL = "https://api.moniloop.com/";
 
 export const COUNTRIES = [

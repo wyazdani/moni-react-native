@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "273985030595",
+    "project_id": "moni-43adb",
+    "storage_bucket": "moni-43adb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:273985030595:android:f00ca72c6ce1d3fbe7d576",
+        "android_client_info": {
+          "package_name": "com.moni"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbmY7IrqLDimZqKeDypwf4mDYp7V_nyQQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
