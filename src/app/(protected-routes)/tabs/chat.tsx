@@ -1,3 +1,4 @@
+import { getMessagesApi } from "@/api/messages";
 import AppLoader from "@/components/app-loader";
 import Message from "@/components/message";
 import SuggestionMessage from "@/components/suggestion-message";
@@ -34,10 +35,22 @@ const Chat = () => {
   const [socket, setSocket] = useState<Socket>();
   const [text, setText] = useState<string>("");
   const [messages, setMessages] = useState<any[]>([]);
+  const [loader, setLoader] = useState<boolean>(false);
   const [isPending, setIsPending] = useState<boolean>(false);
   const { top } = useSafeAreaInsets();
   const paddingBottom = usePaddingBottomForKeyboard(8);
   const isFocused = useIsFocused();
+
+  const getMessages = async () => {
+    setLoader(true);
+    const res = await getMessagesApi();
+    if (res?.status == 200) setMessages(res.data || []);
+    setLoader(false);
+  };
+
+  useEffect(() => {
+    getMessages();
+  }, []);
 
   useEffect(() => {
     if (!user || !isFocused) return;
@@ -96,7 +109,7 @@ const Chat = () => {
     txt = txt?.trim() || text.trim();
     if (!txt) return;
     setIsPending(true);
-    
+
     const newMessage = {
       _id: Date.now(),
       text: txt,
@@ -195,7 +208,7 @@ const Chat = () => {
           messagesContainerStyle={{ marginTop: top + 45 }}
           handleOnScroll={() => Keyboard.dismiss()}
         />
-        <AppLoader visible={isFocused && !socket} />
+        <AppLoader visible={isFocused && (!socket || loader)} />
       </AppLayout>
     )
   );
